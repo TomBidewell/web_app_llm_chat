@@ -61,7 +61,7 @@ if prompt := st.chat_input("Type your message here..."):
             "turn_index": st.session_state.turn_index,
             "user_message": prompt,
             "ai_response": ai_reply,
-            "created_at": datetime.utcnow().isoformat()
+            "created_at": datetime.isoformat()
         }).execute()
     except Exception as e:
         st.error(f"Failed to save to database: {e}")
