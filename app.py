@@ -3,6 +3,7 @@ from openai import OpenAI
 from supabase import create_client, Client
 import uuid
 from datetime import datetime
+import random
 
 # --- 1. SETUP ---
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
@@ -14,7 +15,7 @@ supabase: Client = create_client(
 
 # --- 2. SESSION STATE ---
 if "session_id" not in st.session_state:
-    st.session_state.session_id = str(uuid.uuid4())
+    st.session_state.session_id = random.getrandbits(63)
 
 if "messages" not in st.session_state:
     st.session_state.messages = [
