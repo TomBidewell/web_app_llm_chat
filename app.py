@@ -42,21 +42,63 @@ for msg in st.session_state.messages:
 if prompt := st.chat_input("Type your message here..."):
 
     # Show user message
-    st.chat_message("user").markdown(prompt)
+    st.chat_message("user", avatar = "human").markdown(prompt)
     st.session_state.messages.append({"role": "user", "content": prompt})
 
     # Call the LLM with streaming
-    with st.chat_message("assistant"):
+    with st.chat_message("assistant", avatar = "human"):
+
+        # Show animated pulsing dots via HTML
+        dots_placeholder = st.empty()
+        dots_placeholder.html("""
+                    <style>
+                        .dot-container {
+                            display: flex;
+                            gap: 6px;
+                            align-items: center;
+                            height: 24px;
+                            padding: 4px 0;
+                        }
+                        .dot {
+                            width: 10px;
+                            height: 10px;
+                            border-radius: 50%;
+                            background-color: #888;
+                            animation: pulse 1.2s ease-in-out infinite;
+                        }
+                        .dot:nth-child(1) { animation-delay: 0s; }
+                        .dot:nth-child(2) { animation-delay: 0.3s; }
+                        .dot:nth-child(3) { animation-delay: 0.6s; }
+                        @keyframes pulse {
+                            0%, 80%, 100% { opacity: 0.2; transform: scale(0.8); }
+                            40%            { opacity: 1.0; transform: scale(1.2); }
+                        }
+                    </style>
+                    <div class="dot-container">
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                    </div>
+                """)
+
         try:
             stream = client.chat.completions.create(
                 model="gpt-4o-mini",
                 messages=st.session_state.messages,
                 stream=True
             )
-            ai_reply = st.write_stream(stream)
+            #ai_reply = st.write_stream(stream)
+            ai_reply = ""
+            for chunk in stream:
+                delta = chunk.choices[0].delta.content
+                if delta:
+                    ai_reply += delta
         except Exception as e:
+            dots_placeholder.empty()
             st.error(f"LLM error: {e}")
             st.stop()
+
+        dots_placeholder.markdown(ai_reply)
 
     st.session_state.messages.append({"role": "assistant", "content": ai_reply})
     st.session_state.turn_index += 1
