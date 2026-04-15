@@ -35,7 +35,7 @@ if "turn_index" not in st.session_state:
 # --- 4. DISPLAY CHAT HISTORY ---
 for msg in st.session_state.messages:
     if msg["role"] != "system":
-        with st.chat_message(msg["role"]):
+        with st.chat_message(msg["role"], avatar="human"):
             st.markdown(msg["content"])
 
 # --- 5. CHAT INPUT & LLM CALL ---
